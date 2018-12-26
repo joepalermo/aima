@@ -91,15 +91,23 @@ def ac3(csp):
                     arc_set.add(c)
     return True
 
-def backtracking_search(csp):
-    return backtrack({}, csp)
+def backtracking_search(csp, style):
+    global select_unassigned_variable
+    global order_domain_values
+    if style == 'naive':
+        select_unassigned_variable = naive_select_unassigned_variable
+        order_domain_values = naive_order_domain_values
+        return backtrack({}, csp)
+    elif style == 'heuristic':
+        select_unassigned_variable = heuristic_select_unassigned_variable
+        order_domain_values = heuristic_order_domain_values
+        return backtrack({}, csp)
 
 def backtrack(assignment, csp):
     # base case: assignment is complete
     if len(assignment) == len(csp.vars):
         return assignment
-    unassigned_vars = csp.vars - set(assignment.keys())
-    var = select_unassigned_variable(unassigned_vars, csp)
+    var = select_unassigned_variable(assignment, csp)
     for v in order_domain_values(var, assignment, csp):
         assignment[var] = v
         relevant_constraints = csp.constraint_map.get(var, [])
@@ -109,5 +117,7 @@ def backtrack(assignment, csp):
             result = backtrack(assignment, csp)
             if result is not 'failure':
                 return result
+            else:
+                print("backtrack")
         del assignment[var]
     return 'failure'

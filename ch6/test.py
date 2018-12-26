@@ -42,11 +42,13 @@ def test_ac3(csp):
     ac3(csp)
     assert csp.get_domain_volume() == 400
 
-def test_backtracking_search(csp):
-    print("testing backtracking_search")
-    result = backtracking_search(csp)
+def test_backtracking_search(csp, style):
+    print(f"testing {style} backtracking_search")
+    result = backtracking_search(csp, style)
     print(result)
 
 test_ac3(equality_csp)
-test_backtracking_search(mc_csp)
-test_backtracking_search(impossible_mc_csp)
+test_backtracking_search(mc_csp, 'naive')
+test_backtracking_search(mc_csp, 'heuristic')
+test_backtracking_search(impossible_mc_csp, 'naive')
+test_backtracking_search(impossible_mc_csp, 'heuristic')
