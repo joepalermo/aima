@@ -10,6 +10,7 @@ def get_optimal_indices(values, optimal='min'):
     for i, value in enumerate(values):
         if eval(f'{value} {op} {optimal_value}'):
             optimal_indices = [i]
+            optimal_value = value
         elif value == optimal_value:
             optimal_indices.append(i)
     return optimal_indices
@@ -34,7 +35,7 @@ def num_consistent_assignments(var, assignment, csp):
     return n_consistent
 
 def degree_heuristic(var, csp):
-    return len(csp.constraint_map[var])
+    return len(csp.constraint_map.get(var, []))
 
 def heuristic_select_unassigned_variable(assignment, csp):
     '''Use minimum-remaining-values (MRV) heuristic to select the next

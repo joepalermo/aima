@@ -1,7 +1,7 @@
 from operator import mul
 from functools import reduce
 from copy import copy
-from utils import *
+from csp.utils import *
 
 class CSP:
     def __init__(self, domain_map, constraints):
@@ -118,6 +118,7 @@ def backtrack(assignment, csp):
             if result is not 'failure':
                 return result
             else:
+                pass
                 print("backtrack")
         del assignment[var]
     return 'failure'

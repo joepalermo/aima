@@ -1,4 +1,4 @@
-from csp import *
+from csp.csp import *
 
 # setup equality csp
 domain_map = {'x': list(range(-10, 10)),
