@@ -1,6 +1,7 @@
 from operator import mul
 from functools import reduce
 from copy import copy
+from utils import *
 
 class CSP:
     def __init__(self, domain_map, constraints):
@@ -45,11 +46,8 @@ class Constraint:
     def is_commutative_and_binary(self):
         return (self.op == '==' or self.op == '!=') and len(self.vars) == 2
 
-def flatten(ls):
-    return [item for subls in ls for item in subls]
-
 def mrcc(c):
-    'mrcc: make redundant commutative constraint'
+    '''mrcc: make redundant commutative constraint'''
     assert len(c.vars) == 2
     return [c, Constraint(c.op, (c.vars[1], c.vars[0]))]
 
@@ -73,7 +71,7 @@ def ac3(csp):
         for v in csp.domain_map[var1]:
             satisfied = False
             for w in csp.domain_map[var2]:
-                op_string = f'{v} {arc.op} {w}'
+                op_string = f"{v} {arc.op} {w}"
                 if eval(op_string):
                     satisfied = True
                     break
@@ -93,48 +91,23 @@ def ac3(csp):
                     arc_set.add(c)
     return True
 
-
-def test_constraint(constraint, assignment):
-    '''return True if the constraint is passed or underdetermined and False otherwise'''
-    if constraint.is_binary():
-        var1 = constraint.vars[0]
-        var2 = constraint.vars[1]
-        value1 = assignment.get(var1, None)
-        value2 = assignment.get(var2, None)
-        if value1 is None or value2 is None:
-            return True
-        return eval(f'{value1} {constraint.op} {value2}')
-    else:
-        raise Exception("higher-order constraints not yet implemented")
-
 def backtracking_search(csp):
     return backtrack({}, csp)
 
 def backtrack(assignment, csp):
-    # if assignment is complete
+    # base case: assignment is complete
     if len(assignment) == len(csp.vars):
         return assignment
     unassigned_vars = csp.vars - set(assignment.keys())
     var = select_unassigned_variable(unassigned_vars, csp)
     for v in order_domain_values(var, assignment, csp):
         assignment[var] = v
-        associated_constraints = csp.constraint_map[var]
-        # test if value is consistent with assignment
-        consistent = True
-        for c in associated_constraints:
-            if not test_constraint(c, assignment):
-                consistent = False
-                break
-        if consistent:
+        relevant_constraints = csp.constraint_map.get(var, [])
+        # test if most recent assignment breaks consistency
+        if test_consistency(assignment, relevant_constraints):
             # inference step
             result = backtrack(assignment, csp)
             if result is not 'failure':
                 return result
         del assignment[var]
     return 'failure'
-
-def select_unassigned_variable(unassigned_vars, csp):
-    return unassigned_vars.pop()
-
-def order_domain_values(var, assignment, csp):
-    return csp.domain_map[var]
